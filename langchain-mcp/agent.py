@@ -2,9 +2,13 @@
 
 Usage:
     pip install -r requirements.txt
-    export ASTRALABS_API_KEY=sk_live_...
-    export OPENAI_API_KEY=sk-...
+    cp .env.example .env   # then fill in LLM_API_KEY / LLM_BASE_URL / LLM_MODEL
+    export $(grep -v '^#' .env | xargs)
     python agent.py "Who recently raised funding in the AI search space?"
+
+Works with any OpenAI-compatible provider (OpenAI, xAI Grok, Google Gemini,
+DeepSeek, Qwen, Moonshot/Kimi, ...). See .env.example for current base URLs —
+always confirm the latest URL on the provider's own docs.
 """
 from __future__ import annotations
 
@@ -19,7 +23,12 @@ from langchain_core.prompts import ChatPromptTemplate
 
 API_BASE = os.environ.get("ASTRALABS_API_BASE", "https://api.astralabsai.com/v1")
 ASTRALABS_API_KEY = os.environ["ASTRALABS_API_KEY"]
-OPENAI_API_KEY = os.environ["OPENAI_API_KEY"]
+# Generic OpenAI-compatible LLM config (fallback to OPENAI_* for back-compat)
+LLM_API_KEY = os.environ.get("LLM_API_KEY") or os.environ["OPENAI_API_KEY"]
+LLM_BASE_URL = os.environ.get("LLM_BASE_URL") or os.environ.get(
+    "OPENAI_BASE_URL", "https://api.openai.com/v1"
+)
+LLM_MODEL = os.environ.get("LLM_MODEL", "gpt-4o-mini")
 
 
 @tool
@@ -35,7 +44,9 @@ def astralabs_search(query: str) -> dict:
 
 
 def build_executor() -> AgentExecutor:
-    llm = ChatOpenAI(model="gpt-4o-mini", temperature=0, api_key=OPENAI_API_KEY)
+    llm = ChatOpenAI(
+        model=LLM_MODEL, temperature=0, api_key=LLM_API_KEY, base_url=LLM_BASE_URL
+    )
     prompt = ChatPromptTemplate.from_messages(
         [
             ("system", "You are a research agent. Always use astralabs_search before answering."),
