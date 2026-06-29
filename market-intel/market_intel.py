@@ -1,9 +1,12 @@
 """Market Intelligence — structured JSON signals from live-web evidence.
 
 Usage:
-    export ASTRALABS_API_KEY=sk_live_...
-    export OPENAI_API_KEY=sk-...
+    cp .env.example .env   # fill in LLM_API_KEY / LLM_BASE_URL / LLM_MODEL
+    export $(grep -v '^#' .env | xargs)
     python market_intel.py "electric vehicles"
+
+Works with any OpenAI-compatible LLM (OpenAI, xAI Grok, Google Gemini,
+DeepSeek, Qwen, Moonshot/Kimi). Always verify base URLs on the provider's docs.
 """
 from __future__ import annotations
 
@@ -18,8 +21,9 @@ API_KEY = os.environ.get("ASTRALABS_API_KEY")
 LLM_MODEL = os.environ.get("LLM_MODEL", "gpt-4o-mini")
 
 llm = OpenAI(
-    api_key=os.environ["OPENAI_API_KEY"],
-    base_url=os.environ.get("OPENAI_BASE_URL", "https://api.openai.com/v1"),
+    api_key=os.environ.get("LLM_API_KEY") or os.environ["OPENAI_API_KEY"],
+    base_url=os.environ.get("LLM_BASE_URL")
+    or os.environ.get("OPENAI_BASE_URL", "https://api.openai.com/v1"),
 )
 
 PROMPT = (
