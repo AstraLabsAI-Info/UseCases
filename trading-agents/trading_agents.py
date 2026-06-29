@@ -4,9 +4,12 @@ EDUCATIONAL DEMO ONLY. NOT FINANCIAL ADVICE.
 
 Usage:
     pip install -r requirements.txt
-    export ASTRALABS_API_KEY=sk_live_...
-    export OPENAI_API_KEY=sk-...
+    cp .env.example .env   # fill in LLM_API_KEY / LLM_BASE_URL / LLM_MODEL
+    export $(grep -v '^#' .env | xargs)
     python trading_agents.py "Top semiconductor stock in Japan"
+
+Works with any OpenAI-compatible LLM (OpenAI, xAI Grok, Google Gemini,
+DeepSeek, Qwen, Moonshot/Kimi). Verify base URLs on the provider's docs.
 """
 from __future__ import annotations
 
@@ -21,8 +24,9 @@ ASTRALABS_API_KEY = os.environ["ASTRALABS_API_KEY"]
 LLM_MODEL = os.environ.get("LLM_MODEL", "gpt-4o-mini")
 
 client = OpenAI(
-    api_key=os.environ["OPENAI_API_KEY"],
-    base_url=os.environ.get("OPENAI_BASE_URL", "https://api.openai.com/v1"),
+    api_key=os.environ.get("LLM_API_KEY") or os.environ["OPENAI_API_KEY"],
+    base_url=os.environ.get("LLM_BASE_URL")
+    or os.environ.get("OPENAI_BASE_URL", "https://api.openai.com/v1"),
 )
 
 
