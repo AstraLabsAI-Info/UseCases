@@ -2,9 +2,13 @@
 
 Usage:
     pip install -r requirements.txt
-    export OPENAI_API_KEY=sk-...        # for embeddings
-    export LLM_API_KEY=sk-...           # for chat (BYOK)
+    cp .env.example .env   # fill in OPENAI_API_KEY + LLM_API_KEY/BASE_URL
+    export $(grep -v '^#' .env | xargs)
     python rag_pdf_chat.py doc1.pdf doc2.pdf
+
+Embeddings use OpenAI (text-embedding-3-small). Chat completion works with any
+OpenAI-compatible provider (OpenAI, xAI Grok, Google Gemini, DeepSeek, Qwen,
+Moonshot/Kimi). Verify base URLs on the provider's docs.
 """
 from __future__ import annotations
 
